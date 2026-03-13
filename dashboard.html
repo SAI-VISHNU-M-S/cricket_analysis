@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Dashboard | Cricket AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
+        .feedback-item { border-left: 3px solid #3b82f6; padding: 10px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body class="p-10 min-h-screen">
+    <div class="glass p-10 max-w-6xl w-full mx-auto relative">
+        <a href="/" class="absolute top-4 right-6 text-gray-400 hover:text-red-400 text-sm font-bold">Logout ⏻</a>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="space-y-6">
+                <div class="bg-blue-900/20 p-6 rounded-2xl border border-blue-500/30">
+                    <h3 class="text-lg font-bold text-blue-400 mb-2">Biomechanical Analysis</h3>
+                    <p class="text-xs text-gray-300">Using MediaPipe skeletal tracking.</p>
+                </div>
+
+                <div id="drop-zone" class="border-2 border-dashed border-white/30 p-10 text-center rounded-2xl cursor-pointer hover:bg-white/5">
+                    <p id="file-name" class="text-gray-300">Step 1: Select Shot Video</p>
+                    <input type="file" id="video-input" class="hidden" accept="video/*">
+                </div>
+                
+                <button onclick="uploadVideo()" class="w-full bg-green-600 p-4 rounded-xl font-bold hover:bg-green-700 shadow-lg transition">
+                    📤 Step 2: Run Analysis
+                </button>
+                <div id="analysis-status" class="text-yellow-400 text-center italic"></div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <video id="result-video" controls class="w-full rounded-2xl border border-white/20 hidden shadow-2xl"></video>
+                
+                <div id="analysis-data" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white/10 p-6 rounded-2xl border border-white/20">
+                        <h3 class="font-bold text-blue-400 mb-3 uppercase tracking-wider text-xs">AI Coaching Feedback</h3>
+                        <ul id="feedback-list" class="space-y-1 text-sm"></ul>
+                    </div>
+                    <div class="flex flex-col justify-center items-center p-6 bg-white/5 rounded-2xl border border-white/10">
+                        <a id="download-pdf" href="#" target="_blank" class="w-full bg-white text-blue-900 font-bold p-3 rounded-xl text-center">📄 Download Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        const fileInput = document.getElementById('video-input');
+        const dz = document.getElementById('drop-zone');
+
+        dz.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            selectedFile = e.target.files[0];
+            if(selectedFile) document.getElementById('file-name').innerText = "Selected: " + selectedFile.name;
+        };
+
+        async function uploadVideo() {
+            if (!selectedFile) return;
+            const status = document.getElementById('analysis-status');
+            status.innerText = "Analyzing Biomechanics... ⏳";
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/analyze', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                status.innerText = "Analysis Complete!";
+                const video = document.getElementById('result-video');
+                video.src = data.video_url;
+                video.classList.remove('hidden');
+
+                document.getElementById('analysis-data').classList.remove('hidden');
+                document.getElementById('feedback-list').innerHTML = data.feedback.map(f => `<li class="feedback-item">${f}</li>`).join('');
+                document.getElementById('download-pdf').href = data.report_url;
+            } catch (err) { status.innerText = "Error analyzing video."; }
+        }
+    </script>
+</body>
+</html>

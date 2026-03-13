@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentication | Cricket AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #0f172a; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div id="auth-section" class="glass p-8 max-w-md w-full shadow-2xl">
+        <h2 id="auth-title" class="text-2xl font-bold mb-6 text-center text-blue-400">Start Your Session</h2>
+        <div id="auth-status" class="text-center mb-4 text-sm font-semibold italic min-h-[1.25rem]"></div>
+
+        <form onsubmit="handleAuth(event)" class="space-y-4">
+            <input type="text" id="username" placeholder="Username" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 outline-none">
+            <input type="email" id="email-field" placeholder="Email Address" class="hidden w-full p-4 rounded-xl bg-white/10 border border-white/20 outline-none">
+            <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 outline-none">
+            <button type="submit" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-700 transition">Enter Dashboard</button>
+        </form>
+
+        <div class="mt-6 text-center text-sm">
+            <p id="toggle-wrapper" class="text-gray-400">
+                New to the academy? <button onclick="toggleAuthMode()" class="text-blue-400 font-bold hover:underline ml-1">Register Now</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+        const authStatus = document.getElementById('auth-status');
+        const emailInput = document.getElementById('email-field');
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Start Your Session" : "Join the Academy";
+            emailInput.classList.toggle('hidden', isLoginMode);
+        }
+
+        async function handleAuth(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const email = emailInput.value;
+
+            try {
+                const endpoint = isLoginMode ? '/login' : '/register';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass, email: email })
+                });
+
+                if (!response.ok) throw new Error("Authentication failed");
+                window.location.href = "/dashboard";
+            } catch (err) {
+                authStatus.innerText = "❌ " + err.message;
+                authStatus.className = "text-center mb-4 text-sm font-semibold text-yellow-400";
+            }
+        }
+    </script>
+</body>
+</html>

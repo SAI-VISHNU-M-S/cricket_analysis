@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket AI Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+                        url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=2000') 
+                        no-repeat center center fixed;
+            background-size: cover; color: white;
+        }
+        .glass { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="auth-box" class="glass p-10 max-w-md w-full text-center shadow-2xl">
+        <h2 id="at" class="text-3xl font-bold mb-6 text-blue-400">Academy Sign-In</h2>
+        <div id="ae" class="text-sm mb-4 min-h-[1.25rem]"></div>
+        <div class="space-y-4">
+            <input type="text" id="u" placeholder="Username" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none">
+            <input type="password" id="p" placeholder="Password" class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none">
+            <div class="flex gap-2">
+                <button onclick="doAuth('/login')" class="flex-1 bg-blue-600 p-4 rounded-xl font-bold">Login</button>
+                <button onclick="doAuth('/register')" class="flex-1 bg-gray-600 p-4 rounded-xl font-bold">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dash-box" class="hidden glass p-10 max-w-2xl w-full text-center">
+        <h1 class="text-4xl font-bold mb-4">Biomechanical Analysis</h1>
+        <div id="dz" class="border-2 border-dashed border-white/20 p-10 rounded-2xl cursor-pointer hover:bg-white/5 mb-6">
+            <p id="fn">Step 1: Select Your Shot Video</p>
+            <input type="file" id="vi" class="hidden" accept="video/*">
+        </div>
+        <button onclick="runAnalysis()" id="rbtn" class="w-full bg-green-600 p-4 rounded-xl font-bold">Step 2: Run Pro Analysis</button>
+        <div id="st" class="mt-4 text-yellow-400 italic"></div>
+    </div>
+
+    <div id="res-box" class="hidden glass p-8 max-w-5xl w-full mt-6 shadow-2xl">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">✅ Biometric Overlay</h3>
+                <video id="rv" controls playsinline class="w-full rounded-xl border border-white/10"></video>
+                <button onclick="document.getElementById('mc').classList.remove('hidden'); this.hidden=true" class="w-full bg-blue-600 p-4 rounded-xl font-bold">View AI Feedback</button>
+            </div>
+            <div id="mc" class="hidden flex flex-col space-y-4">
+                <div class="bg-black/30 p-6 rounded-2xl border border-white/10 flex-grow">
+                    <h3 class="text-blue-400 font-bold mb-4 uppercase text-xs">AI Coaching Feedback</h3>
+                    <ul id="fl" class="space-y-3 text-sm"></ul>
+                </div>
+                <a id="dl" target="_blank" class="bg-white text-blue-900 font-bold p-4 rounded-xl text-center">✅ Download PDF Report</a>
+                <button onclick="location.reload()" class="text-gray-400 underline text-sm">Analyze New Video</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function doAuth(ep) {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            const res = await fetch(ep, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u, password: p})
+            });
+            if(res.ok) {
+                if(ep === '/register') alert("Registered! Now Login.");
+                else { document.getElementById('auth-box').classList.add('hidden'); document.getElementById('dash-box').classList.remove('hidden'); }
+            } else { document.getElementById('ae').innerText = "Auth Failed"; }
+        }
+
+        const vi = document.getElementById('vi');
+        document.getElementById('dz').onclick = () => vi.click();
+        vi.onchange = () => { if(vi.files[0]) document.getElementById('fn').innerText = vi.files[0].name; };
+
+        async function runAnalysis() {
+            if(!vi.files[0]) return;
+            document.getElementById('st').innerText = "Processing... ⏳";
+            const fd = new FormData();
+            fd.append('file', vi.files[0]);
+
+            const res = await fetch('/analyze', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            const video = document.getElementById('rv');
+            video.src = data.video_url + "?t=" + new Date().getTime(); // Anti-cache
+            video.load();
+            
+            document.getElementById('fl').innerHTML = data.feedback.map(f => `<li class="border-l-4 border-blue-500 pl-4 py-1 bg-white/5">${f}</li>`).join('');
+            document.getElementById('dl').href = data.report_url;
+            
+            document.getElementById('dash-box').classList.add('hidden');
+            document.getElementById('res-box').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
