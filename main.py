@@ -2,7 +2,7 @@ import os
 import uuid
 import shutil
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import FastAPI, UploadFile, File, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +16,6 @@ from .shot_analyzer import process_video
 
 app = FastAPI()
 
-# Enable CORS for ngrok and mobile access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,7 +27,6 @@ app.add_middleware(
 # Initialize OpenAI Client (Add your key here)
 client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
 
-# Pathing: backend/main.py -> backend/ -> pjt/
 BASE_DIR = Path(__file__).resolve().parent.parent
 UPLOAD_DIR = BASE_DIR / "uploads"
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -45,24 +43,30 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 # In-memory user storage
 users_db = {}
 
-class AuthSchema(BaseModel):
-    username: str
-    password: str
+class RegisterSchema(BaseModel):
+    username: str = Field(..., min_length=1)
+    email: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
+
+class LoginSchema(BaseModel):
+    username: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/register")
-async def register(user: AuthSchema):
+async def register(user: RegisterSchema):
     if user.username in users_db:
         raise HTTPException(status_code=400, detail="User already exists")
-    users_db[user.username] = user.password
+    users_db[user.username] = {"password": user.password, "email": user.email}
     return {"message": "Success"}
 
 @app.post("/login")
-async def login(user: AuthSchema):
-    if user.username not in users_db or users_db[user.username] != user.password:
+async def login(user: LoginSchema):
+    stored = users_db.get(user.username)
+    if not stored or stored["password"] != user.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"message": "Success"}
 
@@ -77,14 +81,11 @@ async def analyze_video(request: Request, file: UploadFile = File(...)):
     with input_path.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # 1. Run local biomechanics
     is_compact, feedback = await run_in_threadpool(
         process_video, str(input_path), str(output_path), str(report_path)
     )
     
-    # 2. Add OpenAI Pro Coach Tip
     try:
-        # feedback[0] = Shot Type, feedback[1] = Average Angle
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
