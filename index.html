@@ -3,109 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket AI Academy | Pro Biometrics</title>
+    <title>Cricket AI | Pro Biometric Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), 
+            /* Changed to a neutral dark overlay to remove the deep blue cast */
+            background: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.75)), 
                         url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=2000') 
                         no-repeat center center fixed;
-            background-size: cover; color: white; font-family: 'Inter', sans-serif;
+            background-size: cover; 
+            color: white; 
+            font-family: 'Inter', sans-serif;
         }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .feature-card { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 1rem; }
+
+        /* Pure white frosted glass without the blue tint */
+        .glass { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(18px); 
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 28px; 
+        }
+
+        /* Feature tags with neutral white/gray tones */
+        .feature-tag { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 4px 14px; 
+            border-radius: 99px; 
+            font-size: 0.7rem; 
+            color: #f1f1f1; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+        }
+
         .hidden { display: none; }
+        input::placeholder { color: rgba(255,255,255,0.4); }
     </style>
 </head>
-<body class="min-h-screen p-6">
+<body class="min-h-screen flex flex-col items-center justify-start p-6">
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[90vh]">
+    <header class="text-center mt-12 mb-10 max-w-3xl">
+        <h1 class="text-5xl font-black mb-4 tracking-tight text-white">
+            CRICKET FEEDBACK SYSTEM
+        </h1>
+        <p class="text-gray-300 text-lg font-light">
+            Professional Biomechanical Analysis for Cricket Coaching
+        </p>
+        <div class="flex flex-wrap justify-center gap-3 mt-8">
+            <span class="feature-tag">Real-time Skeletal Tracking</span>
+            <span class="feature-tag">Generative Coaching</span>
+            <span class="feature-tag">Postural Corrections</span>
+            <span class="feature-tag">PDF Biometrics</span>
+        </div>
+    </header>
+
+    <main class="w-full flex justify-center items-center py-10">
         
-        <div class="space-y-8">
-            <div>
-                <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
-                    Master Your Technique with AI
-                </h1>
-                <p class="text-gray-400 text-lg">
-                    Experience the future of cricket coaching using real-time biomechanics and generative AI feedback.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="feature-card">
-                    <h3 class="text-blue-400 font-bold mb-2">Real-time Skeletal Tracking</h3>
-                    <p class="text-xs text-gray-300">Uses MediaPipe to map 33 key body landmarks, ensuring your elbow and head positions are frame-perfect.</p>
-                </div>
-                <div class="feature-card">
-                    <h3 class="text-green-400 font-bold mb-2">Generative Coaching</h3>
-                    <p class="text-xs text-gray-300">Powered by GPT-4o, providing aggressive, personalized technical tips based on your specific shot data.</p>
-                </div>
-                <div class="feature-card">
-                    <h3 class="text-yellow-400 font-bold mb-2">Biometric Reporting</h3>
-                    <p class="text-xs text-gray-300">Instant PDF reports featuring average elbow extension, frame analysis, and posture status.</p>
-                </div>
-                <div class="feature-card">
-                    <h3 class="text-red-400 font-bold mb-2">Instant Correction</h3>
-                    <p class="text-xs text-gray-300">Identifies "Collapsed" vs "Compact" form immediately, helping you fix winging arms in real-time.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex justify-center">
-            <div id="auth-box" class="glass p-10 w-full max-w-md shadow-2xl">
-                <h2 id="auth-title" class="text-3xl font-bold mb-6 text-center text-blue-400">Academy Login</h2>
-                <div id="auth-msg" class="text-sm mb-4 min-h-[1.25rem] font-semibold text-center text-yellow-400"></div>
+        <div id="auth-box" class="glass p-12 w-full max-w-md shadow-2xl transition-all duration-500">
+            <h2 id="auth-title" class="text-2xl font-bold mb-8 text-center text-white tracking-wide">Academy Login</h2>
+            <div id="auth-msg" class="text-sm mb-6 min-h-[1.25rem] font-medium text-center text-yellow-500"></div>
+            
+            <form onsubmit="handleAuth(event)" class="space-y-5">
+                <input type="text" id="u" placeholder="Username" required 
+                       class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:bg-white/10 focus:border-white/40 transition text-white">
                 
-                <form onsubmit="handleAuth(event)" class="space-y-4">
-                    <input type="text" id="u" placeholder="Username" required 
-                           class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition">
-                    
-                    <input type="text" id="m" placeholder="Email Address" 
-                           class="hidden w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition">
-                    
-                    <input type="password" id="p" placeholder="Password" required 
-                           class="w-full p-4 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-blue-500 transition">
-                    
-                    <button type="submit" id="submit-btn" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-700 transition">
-                        Sign In
+                <input type="text" id="m" placeholder="Email Address" 
+                       class="hidden w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:bg-white/10 focus:border-white/40 transition text-white">
+                
+                <input type="password" id="p" placeholder="Password" required 
+                       class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 outline-none focus:bg-white/10 focus:border-white/40 transition text-white">
+                
+                <button type="submit" id="submit-btn" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold hover:bg-indigo-500 shadow-lg transition text-white">
+                    Sign In
+                </button>
+            </form>
+
+            <p class="mt-8 text-sm text-center text-gray-400">
+                <span id="toggle-text">New Here?</span>
+                <button onclick="toggleAuth()" class="text-white font-bold hover:underline ml-1" id="toggle-btn">Register Now</button>
+            </p>
+        </div>
+
+        <div id="dash-box" class="hidden glass p-12 w-full max-w-xl text-center shadow-2xl">
+            <h1 class="text-3xl font-bold mb-2">Analyze Your Shot</h1>
+            <p class="text-gray-400 mb-10">Upload a video for feedback</p>
+            
+            <div id="dz" class="border-2 border-dashed border-white/10 p-16 rounded-3xl cursor-pointer hover:bg-white/5 transition mb-8 group">
+                <div class="text-4xl mb-4 group-hover:scale-110 transition duration-300">🏏</div>
+                <p id="fn" class="text-gray-300 font-medium">Click to select video</p>
+                <input type="file" id="vi" class="hidden" accept="video/*">
+            </div>
+            
+            <button onclick="runAnalysis()" id="rbtn" class="w-full bg-green-600 py-5 rounded-2xl font-black text-lg hover:bg-green-700 transition shadow-xl">
+                RUN ANALYSIS
+            </button>
+            <div id="st" class="mt-6 text-indigo-300 font-bold animate-pulse uppercase text-xs tracking-widest"></div>
+        </div>
+    </main>
+
+    <section id="res-box" class="hidden w-full max-w-6xl mt-24 border-t border-white/5 pt-20 pb-40">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold tracking-tight">Biometric Results</h2>
+            <p class="text-gray-400">Analysis complete. Review your posture and coaching tips below.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="space-y-6">
+                <div class="glass overflow-hidden">
+                    <div class="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Skeletal Overlay</span>
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
+                    </div>
+                    <video id="rv" controls playsinline class="w-full"></video>
+                </div>
+                <a id="dl" target="_blank" class="block w-full glass py-5 rounded-2xl text-center font-bold hover:bg-white/5 transition text-white">
+                    Download Full PDF Report
+                </a>
+            </div>
+
+            <div class="space-y-6">
+                <div class="glass p-8 min-h-[450px] flex flex-col">
+                    <h3 class="text-white font-black mb-8 uppercase text-[10px] tracking-[0.3em] border-b border-white/10 pb-4">
+                        AI Coaching & Biometrics
+                    </h3>
+                    <ul id="fl" class="space-y-5 text-sm flex-grow"></ul>
+                    <button onclick="location.reload()" class="mt-10 text-gray-500 hover:text-white transition text-[10px] font-black uppercase tracking-widest">
+                        ← Analyze New Session
                     </button>
-                </form>
-
-                <p class="mt-6 text-sm text-center text-gray-400">
-                    <span id="toggle-text">New to the academy?</span>
-                    <button onclick="toggleAuth()" class="text-blue-400 font-bold hover:underline ml-1" id="toggle-btn">Register Now</button>
-                </p>
-            </div>
-
-            <div id="dash-box" class="hidden glass p-10 w-full max-w-2xl text-center">
-                <h1 class="text-3xl font-bold mb-4">Upload Shot for Analysis</h1>
-                <div id="dz" class="border-2 border-dashed border-white/20 p-10 rounded-2xl cursor-pointer hover:bg-white/5 mb-6">
-                    <p id="fn">Step 1: Select Your Shot Video</p>
-                    <input type="file" id="vi" class="hidden" accept="video/*">
                 </div>
-                <button onclick="runAnalysis()" id="rbtn" class="w-full bg-green-600 p-4 rounded-xl font-bold">Step 2: Run Pro Analysis</button>
-                <div id="st" class="mt-4 text-yellow-400 italic"></div>
             </div>
         </div>
-    </div>
-
-    <div id="res-box" class="hidden max-w-6xl mx-auto glass p-8 mt-10 shadow-2xl">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="space-y-4">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest">✅ Biometric Overlay</h3>
-                <video id="rv" controls playsinline class="w-full rounded-xl border border-white/10"></video>
-                <button onclick="document.getElementById('mc').classList.remove('hidden'); this.hidden=true" class="w-full bg-blue-600 p-4 rounded-xl font-bold">View AI Feedback</button>
-            </div>
-            <div id="mc" class="hidden flex flex-col space-y-4">
-                <div class="bg-black/30 p-6 rounded-2xl border border-white/10 flex-grow">
-                    <h3 class="text-blue-400 font-bold mb-4 uppercase text-xs">AI Coaching Feedback</h3>
-                    <ul id="fl" class="space-y-3 text-sm"></ul>
-                </div>
-                <a id="dl" target="_blank" class="bg-white text-blue-900 font-bold p-4 rounded-xl text-center">✅ Download PDF Report</a>
-                <button onclick="location.reload()" class="text-gray-400 underline text-sm">Analyze New Video</button>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <script>
         let isLogin = true;
@@ -118,21 +151,12 @@
             const toggleText = document.getElementById('toggle-text');
             const toggleBtn = document.getElementById('toggle-btn');
 
-            if (isLogin) {
-                title.innerText = "Academy Login";
-                mailField.classList.add('hidden');
-                mailField.required = false;
-                submitBtn.innerText = "Sign In";
-                toggleText.innerText = "New to the academy?";
-                toggleBtn.innerText = "Register Now";
-            } else {
-                title.innerText = "Join the Academy";
-                mailField.classList.remove('hidden');
-                mailField.required = true;
-                submitBtn.innerText = "Create Account";
-                toggleText.innerText = "Already a member?";
-                toggleBtn.innerText = "Login here";
-            }
+            title.innerText = isLogin ? "Academy Login" : "Join the Academy";
+            mailField.classList.toggle('hidden', isLogin);
+            mailField.required = !isLogin;
+            submitBtn.innerText = isLogin ? "Sign In" : "Create Account";
+            toggleText.innerText = isLogin ? "New Here?" : "Already a member?";
+            toggleBtn.innerText = isLogin ? "Register Now" : "Login here";
         }
 
         async function handleAuth(event) {
@@ -155,7 +179,7 @@
                 if(res.ok) {
                     if(!isLogin) {
                         msg.innerText = "✅ Registered! Please Login.";
-                        msg.style.color = "#4ade80";
+                        msg.style.color = "#ffffff";
                         toggleAuth();
                     } else {
                         document.getElementById('auth-box').classList.add('hidden');
@@ -174,7 +198,7 @@
 
         async function runAnalysis() {
             if(!vi.files[0]) return;
-            document.getElementById('st').innerText = "Processing Biometrics... ⏳";
+            document.getElementById('st').innerText = "GENERATING BIOMETRICS... ⏳";
             const fd = new FormData();
             fd.append('file', vi.files[0]);
 
@@ -185,11 +209,18 @@
             video.src = data.video_url + "?t=" + new Date().getTime(); 
             video.load();
             
-            document.getElementById('fl').innerHTML = data.feedback.map(f => `<li class="border-l-4 border-blue-500 pl-4 py-1 bg-white/5">${f}</li>`).join('');
-            document.getElementById('dl').href = data.report_url;
+            document.getElementById('fl').innerHTML = data.feedback.map(f => {
+                const isCoach = f.includes('AI COACH');
+                return `<li class="border-l-2 ${isCoach ? 'border-indigo-400 bg-white/5' : 'border-white/20 bg-white/[0.02]'} pl-6 py-4 rounded-r-2xl">
+                            <span class="block text-[9px] uppercase font-black text-gray-500 mb-2 tracking-widest">${isCoach ? 'AI Coach Recommendation' : 'Metric Data'}</span>
+                            <span class="${isCoach ? 'text-indigo-200' : 'text-gray-300'}">${f}</span>
+                        </li>`;
+            }).join('');
             
+            document.getElementById('dl').href = data.report_url;
             document.getElementById('dash-box').classList.add('hidden');
             document.getElementById('res-box').classList.remove('hidden');
+            document.getElementById('res-box').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
